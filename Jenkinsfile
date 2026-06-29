@@ -74,6 +74,10 @@ spec:
     stage('Checkout') {
       steps {
         checkout scm
+        // Git 2.35+ refuses a workspace owned by a different UID. The agent
+        // checks out as uid 1000; the 'node' container runs as root — so mark
+        // the workspace safe before any raw git command runs.
+        sh 'git config --global --add safe.directory "*"'
         script { env.IMAGE_TAG = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim() }
       }
     }

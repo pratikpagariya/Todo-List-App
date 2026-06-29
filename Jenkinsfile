@@ -157,8 +157,8 @@ spec:
           sh """
             buildah bud  --storage-driver vfs -f backend/Containerfile  -t localhost/todo-backend:${IMAGE_TAG}  backend
             buildah bud  --storage-driver vfs -f frontend/Containerfile -t localhost/todo-frontend:${IMAGE_TAG} frontend
-            buildah push --storage-driver vfs localhost/todo-backend:${IMAGE_TAG}  oci-archive:/workspace/be.tar
-            buildah push --storage-driver vfs localhost/todo-frontend:${IMAGE_TAG} oci-archive:/workspace/fe.tar
+            buildah push --storage-driver vfs localhost/todo-backend:${IMAGE_TAG}  oci-archive:be.tar
+            buildah push --storage-driver vfs localhost/todo-frontend:${IMAGE_TAG} oci-archive:fe.tar
           """
         }
       }
@@ -167,8 +167,8 @@ spec:
     stage('Trivy: image scan (before push)') {
       steps {
         container('trivy') {
-          sh 'trivy image --input /workspace/be.tar --severity HIGH,CRITICAL --exit-code 1 --ignore-unfixed --no-progress'
-          sh 'trivy image --input /workspace/fe.tar --severity HIGH,CRITICAL --exit-code 1 --ignore-unfixed --no-progress'
+          sh 'trivy image --input be.tar --severity HIGH,CRITICAL --exit-code 1 --ignore-unfixed --no-progress'
+          sh 'trivy image --input fe.tar --severity HIGH,CRITICAL --exit-code 1 --ignore-unfixed --no-progress'
         }
       }
     }
@@ -176,14 +176,14 @@ spec:
     stage('Push to ECR') {
       steps {
         container('aws') {
-          sh "aws ecr get-login-password --region ${AWS_REGION} > /workspace/ecr-token"
+          sh "aws ecr get-login-password --region ${AWS_REGION} > ecr-token"
         }
         container('buildah') {
           sh """
-            buildah login -u AWS --password-stdin ${ECR} < /workspace/ecr-token
+            buildah login -u AWS --password-stdin ${ECR} < ecr-token
             buildah push --storage-driver vfs localhost/todo-backend:${IMAGE_TAG}  docker://${ECR}/${ECR_BACKEND}:${IMAGE_TAG}
             buildah push --storage-driver vfs localhost/todo-frontend:${IMAGE_TAG} docker://${ECR}/${ECR_FRONTEND}:${IMAGE_TAG}
-            rm -f /workspace/ecr-token
+            rm -f ecr-token
           """
         }
       }

@@ -155,10 +155,10 @@ spec:
       steps {
         container('buildah') {
           sh """
-            buildah bud  --storage-driver vfs -f backend/Containerfile  -t todo-backend:${IMAGE_TAG}  backend
-            buildah bud  --storage-driver vfs -f frontend/Containerfile -t todo-frontend:${IMAGE_TAG} frontend
-            buildah push --storage-driver vfs todo-backend:${IMAGE_TAG}  oci-archive:/workspace/be.tar
-            buildah push --storage-driver vfs todo-frontend:${IMAGE_TAG} oci-archive:/workspace/fe.tar
+            buildah bud  --storage-driver vfs -f backend/Containerfile  -t localhost/todo-backend:${IMAGE_TAG}  backend
+            buildah bud  --storage-driver vfs -f frontend/Containerfile -t localhost/todo-frontend:${IMAGE_TAG} frontend
+            buildah push --storage-driver vfs localhost/todo-backend:${IMAGE_TAG}  oci-archive:/workspace/be.tar
+            buildah push --storage-driver vfs localhost/todo-frontend:${IMAGE_TAG} oci-archive:/workspace/fe.tar
           """
         }
       }
@@ -181,8 +181,8 @@ spec:
         container('buildah') {
           sh """
             buildah login -u AWS --password-stdin ${ECR} < /workspace/ecr-token
-            buildah push --storage-driver vfs todo-backend:${IMAGE_TAG}  docker://${ECR}/${ECR_BACKEND}:${IMAGE_TAG}
-            buildah push --storage-driver vfs todo-frontend:${IMAGE_TAG} docker://${ECR}/${ECR_FRONTEND}:${IMAGE_TAG}
+            buildah push --storage-driver vfs localhost/todo-backend:${IMAGE_TAG}  docker://${ECR}/${ECR_BACKEND}:${IMAGE_TAG}
+            buildah push --storage-driver vfs localhost/todo-frontend:${IMAGE_TAG} docker://${ECR}/${ECR_FRONTEND}:${IMAGE_TAG}
             rm -f /workspace/ecr-token
           """
         }

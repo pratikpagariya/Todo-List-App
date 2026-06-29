@@ -11,4 +11,7 @@ RUN npm run build                 # outputs to /app/dist
 FROM nginxinc/nginx-unprivileged:1.27-alpine AS runtime
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/dist /usr/share/nginx/html
+# Explicit non-root user (uid 101 = "nginx" in nginx-unprivileged). Satisfies
+# Trivy DS002 and matches the Deployment's runAsUser: 101.
+USER 101
 EXPOSE 8080                       # nginx-unprivileged listens on 8080 as uid 101

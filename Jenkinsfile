@@ -123,8 +123,13 @@ spec:
     stage('SonarQube analysis') {
       steps {
         container('sonar') {
-          withSonarQubeEnv('sonarqube') {     // "SonarQube servers" config in Jenkins
-            sh 'sonar-scanner'                 // reads sonar-project.properties
+          withSonarQubeEnv('sonarqube') {     // provides SONAR_HOST_URL (+ server token)
+            // Bind the token credential explicitly and pass it as sonar.token, so
+            // it works regardless of which env var withSonarQubeEnv exports
+            // (SonarScanner CLI 8.x reads sonar.token / SONAR_TOKEN).
+            withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
+              sh 'sonar-scanner -Dsonar.token=$SONAR_TOKEN -Dsonar.host.url=$SONAR_HOST_URL'
+            }
           }
         }
       }

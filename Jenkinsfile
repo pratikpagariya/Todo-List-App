@@ -157,8 +157,8 @@ spec:
           sh """
             buildah bud  --storage-driver vfs -f backend/Containerfile  -t localhost/todo-backend:${IMAGE_TAG}  backend
             buildah bud  --storage-driver vfs -f frontend/Containerfile -t localhost/todo-frontend:${IMAGE_TAG} frontend
-            buildah push --storage-driver vfs localhost/todo-backend:${IMAGE_TAG}  oci-archive:be.tar
-            buildah push --storage-driver vfs localhost/todo-frontend:${IMAGE_TAG} oci-archive:fe.tar
+            buildah push --storage-driver vfs localhost/todo-backend:${IMAGE_TAG}  docker-archive:be.tar
+            buildah push --storage-driver vfs localhost/todo-frontend:${IMAGE_TAG} docker-archive:fe.tar
           """
         }
       }

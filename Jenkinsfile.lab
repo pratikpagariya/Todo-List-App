@@ -1,0 +1,27 @@
+pipeline {
+  agent any
+  options { timeout(time: 15, unit: 'MINUTES') }
+  stages {
+    stage('Checkout') { steps { checkout scm } }
+    stage('Install') {
+      steps {
+        sh '''
+          cd backend  && npm ci
+          cd ../frontend && npm ci
+        '''
+      }
+    }
+    stage('Test') {
+      steps {
+        sh '''
+          cd backend  && npm test --if-present
+          cd ../frontend && npm test --if-present
+        '''
+      }
+    }
+  }
+  post {
+    success { echo 'green ✅' }
+    failure { echo 'red ❌' }
+  }
+}

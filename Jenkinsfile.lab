@@ -1,8 +1,17 @@
 pipeline {
   agent any
+
   options { timeout(time: 15, unit: 'MINUTES') }
+
+  parameters {
+    choice(name: 'DEPLOY_ENV', choices: ['dev', 'staging', 'prod'])
+  }
+
   stages {
-    stage('Checkout') { steps { checkout scm } }
+    stage('Checkout') { 
+      steps { checkout scm } 
+    }
+
     stage('Install') {
       steps {
         sh '''
@@ -11,6 +20,7 @@ pipeline {
         '''
       }
     }
+
     stage('Test') {
       steps {
         sh '''
@@ -19,7 +29,14 @@ pipeline {
         '''
       }
     }
+
+    stage('Deploy Info') {
+      steps {
+        sh 'echo "Deploying to: $DEPLOY_ENV"'
+      }
+    }
   }
+
   post {
     success { echo 'green ✅' }
     failure { echo 'red ❌' }
